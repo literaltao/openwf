@@ -1,0 +1,10 @@
+*.pyc
+clLev
+clgen_stratify
+dist
+precisebatch-small/
+svm-conf.results
+output/*
+temp-weightlist
+weights
+flearner
