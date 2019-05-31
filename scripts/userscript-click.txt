@@ -1,0 +1,49 @@
+// ==UserScript==
+// @name         New Userscript
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://en.wikipedia.org/wiki/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    window.addEventListener('load', mymain);
+
+    function mymain() {
+        var wait = Math.random() * 4000 + 1000;
+
+        var li = [];
+        var linklist = document.links;
+        var i = 0;
+        for (i = 0; i < linklist.length; i++) {
+            var accept = 1;
+            var linkstr = linklist[i].href;
+            if (linkstr.search("Main_Page") !== -1) {accept = 0;}
+            if (linkstr.search("en.wikipedia.org/wiki/") == -1) {accept = 0;}
+            if (linkstr.substring(10, linkstr.length).search(":") != -1) {accept = 0;}
+            if (linkstr.substring(10, linkstr.length).search("#") != -1) {accept = 0;}
+            if (accept == 1) {
+                li.push(linkstr);
+            }
+        }
+
+        var vi = parseInt(Math.random() * li.length);
+        setTimeout(go, wait, li[vi]);
+
+        //console.log(li.length);
+        //console.log(li[2].search("tex") == -1);
+
+        /*for (i = 0; i < li.length; i++) {
+            console.log(li[i] + "\n");
+        }*/
+    }
+
+    function go(page) {
+        window.location.href = page;
+    }
+    // Your code here...
+})();

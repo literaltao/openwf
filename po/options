@@ -1,0 +1,14 @@
+#for all attacks
+OPEN	1
+INPUT_LOC	../attacks/output/
+OUTPUT_LOC	 
+
+CLOSED_SITENUM	100
+CLOSED_INSTNUM	10
+OPEN_INSTNUM	1000
+DATA_TYPE	cell
+ROUNDS	1000
+
+#for match-conf
+CORE_TOTAL	1
+ATTACK_NAME	Pa-FeaturesSVM

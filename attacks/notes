@@ -1,0 +1,98 @@
+== Data set ==
+
+Parameters: DATA_LOC, DATA_TYPE
+
+Each attack takes in elements from the data set in DATA_LOC. 
+X-Y elements are considered to be instances of site X and are monitored.
+Integer elements Z without a hyphen are considered to be non-monitored elements
+in the open world; each should come from a different site.
+X, Y should start from 0.
+
+The input files should be well-filtered, i.e. it should not have missing
+or empty elements. There should be at least 75 cells in each instance.
+
+Attacks read data based on TRAIN_LIST and TEST_LIST. 
+They also need to know if there are any open world elements (OPEN = 0 or 1). 
+
+== Generating training/testing set ==
+
+The gen_list function in loaders.py generates training and testing sets. 
+
+It takes in options-gen-list, which is based on:
+MODE, CLOSED_SITENUM, CLOSED_INSTNUM, OPEN_INSTNUM, DATA_LOC, DATA_TYPE, OUTPUT_LOC, and FOLD. 
+
+Data is in the following format:
+Each line is a pair time\tpacketsize.
+Packetsize is positive if outgoing and negative if incoming
+In the cell format, |packetsize| = 1.
+
+== Non-lev-based attacks ==
+
+To run a non-lev-based attack algorithm, do the following:
+	
+python attackname.py options
+
+The non-lev-based algorithms are:
+
+Bi-XCor
+jac
+nb
+mnb
+timing
+Pa-FeaturesSVM
+vngpp
+kNN
+Pa-CUMUL
+Ha-kFP
+
+kNN requires flearner.cpp to be compiled. 
+
+== Lev-based attacks == 
+
+Lev-based algorithms are slow, and require pre-processing.
+Therefore, running each attack is a two-step process (each step triggered manually).
+The first step generally requires computational power. 
+Pre-processing starts by compiling clLev:
+
+	mpiCC clLev.cpp -o clLev 
+
+To run:
+
+	mpirun -n CORE_TOTAL ./clLev options
+ 
+The lev files go to OUTPUT_LOC of options. Then, run clgen_stratify to read them and output matrix files. For CaOSAD, run-CaOSAD.py will then process matrix files. 
+
+== dist.cpp ==
+
+Dist.cpp calculates the distance between elements. It takes in the TRAIN_LIST from options as input.
+It uses parallel programming like clLev.cpp. 
+It does not calculate the distance between testing elements.
+It produces a .predist file as follows:
+
+1;2;73.245 (=distance between file 1 and file 2 is 73.245)
+1;2;13.1
+...
+
+It is run with 
+
+	mpiCC dist.cpp -o dist
+	mpirun -n CORE_TOTAL ./dist options
+
+Normally, the input files must be in cell format:
+
+<time>\t<dir*length>
+<time>\t<dir*length>...
+
+It is also able to accept newline-separated features as input. Set DIST_FEAT = 1 in options, and the feature files should be in TRAIN_LIST. 
+
+== Output ==
+
+OUTPUT_LOC states where these files are to be created:
+
+1, OUTPUT_LOC + ".log" - contains misc details, but final two lines must be time, TPR: x/x and time, FPR: x/x
+2. OUTPUT_LOC + ".results" - contains match classification of every input file
+Each line contains (2 + number of classes) tab-delimited numbers.
+First is the time, second is the ground truth, and the numbers thereafter are the "match" of each class.
+The highest-scoring match is the assigned class. 
+
+

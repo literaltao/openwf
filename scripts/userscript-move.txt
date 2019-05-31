@@ -1,0 +1,33 @@
+// ==UserScript==
+// @name         New Userscript
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://www.reddit.com
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    window.addEventListener ("load", LocalMain, false);
+
+    function LocalMain()
+    {
+        var stoptime = Math.random() * 20000 + 20000;
+        doScroll(0, stoptime);
+
+        function doScroll(totaltime)
+        {
+            var scrollheight = Math.random() * 1000;
+            var pausetime = Math.random() * 400 + 100;
+            totaltime += pausetime;
+            window.scrollBy(0, scrollheight);
+            // var s = getScrollPosition();
+            // unsafeWindow.scroll(s[0], s[1] + 1);
+            if (totaltime < stoptime) {
+                setTimeout(doScroll, pausetime, totaltime, stoptime);
+            }
+        }
+    }
+})();
