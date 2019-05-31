@@ -1,10 +1,13 @@
 ## High Precision Open-World Website Fingerprinting
 
 ### Running code example
+
+```
 cd attacks
 python Ha-kFP.py options
 cd ../po
 python conf-po.py options
+```
 
 (Code is generally in Python2, but it should be easily convertible to Python3 by fixing or just removing all the print functions.)
 
