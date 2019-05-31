@@ -54,6 +54,8 @@ so they must be edited to be able to work for the smaller data set.
 Finally, the ensemble PO is in ensemble-short.py.
 Similarly, some modifications are necessary for it to work on the sample data set.
 
+We did not share all of the code we used in the paper; most of the rest of the code is fairly simple (e.g. sensitive client identification problem) and can be easily recreated from the description. We are nevertheless willing to share our other code if needed; contact us by e-mail. 
+
 ### Site lists and scripts
 
 userscript-click.txt was used to load LINK1 and userscript-move.txt was used to load AJAX1.
