@@ -1,4 +1,3 @@
-
 from loaders import *
 import sys
 import subprocess
@@ -13,9 +12,10 @@ CLOSED_SITENUM = 100
 CLOSED_INSTNUM = 200
 OPEN_INSTNUM = 800
 
-#requires dist-process to be run first to obtain dist from predist
-#predist is obtained from attacks/dist.py and dist-open.py
-#scores are obtained from attacks/
+# requires dist-process to be run first to obtain dist from predist
+# predist is obtained from attacks/dist.py and dist-open.py
+# scores are obtained from attacks/
+
 
 def sinste_to_site_inst(sinste):
     if sinste >= CLOSED_SITENUM * CLOSED_INSTNUM:
@@ -26,38 +26,39 @@ def sinste_to_site_inst(sinste):
         inst = sinste % CLOSED_INSTNUM
     return site, inst
 
+
 ##anames = ["Bi-XCor", "Ha-kFP", "flearner", "Pa-CUMUL", "Pa-FeaturesSVM", "Ca-OSAD"]
 anames = ["Ca-OSAD"]
 dnames = ["Wa-kNN.py", "Pa-FeaturesSVM.py", "Pa-CUMUL.py", "cc.py", "Ca-OSAD.py"]
-#this should work even if aname has less data than dname,
-#as is the case for aname Ca-OSAD (but not dname Ca-OSAD.py)
+# this should work even if aname has less data than dname,
+# as is the case for aname Ca-OSAD (but not dname Ca-OSAD.py)
 for aname in anames:
     match = []
-    classes = [] #true classes
+    classes = []  # true classes
 
     if aname == "Ca-OSAD":
         fname = "../attacks/output/full-Ca-OSAD.py.score"
-        print "Loading", fname
+        print("Loading", fname)
         mat, names = load_score(fname)
         match += [r for r in mat]
         classes += [str_to_sinste(a)[0] for a in names]
-    else:    
+    else:
         for i in range(10):
             fname = "{}{}-{}.score".format("../attacks/output/full-", aname, i)
-            print "Loading", fname
+            print("Loading", fname)
             mat, names = load_score(fname)
             match += [r for r in mat]
             classes += [str_to_sinste(a)[0] for a in names]
 
-    cmatch = [] #match, divided by class
-    #cmatch[i] are all the instances of class i
+    cmatch = []  # match, divided by class
+    # cmatch[i] are all the instances of class i
     for i in range(101):
         cmatch.append([])
     for i in range(len(match)):
         cmatch[classes[i]].append(match[i])
 
-    #obtain each guess
-    coclasses = [] #original guesses, divided by class
+    # obtain each guess
+    coclasses = []  # original guesses, divided by class
     for i in range(101):
         coclasses.append([])
     for i in range(len(cmatch)):
@@ -65,23 +66,23 @@ for aname in anames:
             this_match = list(cmatch[i][j])
             maxmatch = max(this_match)
             maxclass = this_match.index(maxmatch)
-            if (maxclass == 100):
+            if maxclass == 100:
                 maxclass = -1
             coclasses[i].append(maxclass)
-                
+
     for dname in dnames:
 
-        print "Generating dist/counts matrices..."
+        print("Generating dist/counts matrices...")
         cdists = []
-        #length of all the above arrays = number of elements in data set
+        # length of all the above arrays = number of elements in data set
 
-        #cdists[i][j][k] is the distance between the jth element of class i, and class k
-        #edists[i] is the expected self-distance of class i
+        # cdists[i][j][k] is the distance between the jth element of class i, and class k
+        # edists[i] is the expected self-distance of class i
 
         for i in range(101):
             cdists.append([])
 
-        print "Loading distance file..."
+        print("Loading distance file...")
         with open("../attacks/output/dist-" + dname + ".dist", "r") as f:
             count = 0
             li = f.readline().split("\t")
@@ -91,18 +92,18 @@ for aname in anames:
                 site, inst = sinste_to_site_inst(int(li[0]))
                 cdists[site].append([float(k) for k in li[1:]])
 
-        #M (M_distclose) from 1 to 20
+        # M (M_distclose) from 1 to 20
         fout = open("../attacks/output/disttc-{}-{}.results".format(aname, dname), "w")
         for i in range(len(coclasses)):
             for j in range(len(coclasses[i])):
-                adist = cdists[i][j][coclasses[i][j]] #distance with assumed class
+                adist = cdists[i][j][coclasses[i][j]]  # distance with assumed class
                 closer_count = 0
                 for k in range(len(cdists[i][j])):
                     if k != coclasses[i][j] and cdists[i][j][k] < adist:
                         closer_count += 1
                 writestr = ""
                 for M in range(20):
-                    if M <= closer_count: #should be rejected
+                    if M <= closer_count:  # should be rejected
                         writestr += "-1\t"
                     else:
                         writestr += str(coclasses[i][j]) + "\t"
