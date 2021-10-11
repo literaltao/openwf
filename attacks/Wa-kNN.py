@@ -2,13 +2,13 @@ import subprocess
 import sys
 import time
 from loaders import *
-        
+
 try:
     optfname = sys.argv[1]
     d = load_options(optfname)
     ofname = "{}{}-{}".format(d["OUTPUT_LOC"], "Wa-kNN", d["CORE_NAME"])
-except Exception,e:
-    print sys.argv[0], str(e)
+except Exception as e:
+    print(sys.argv[0], str(e))
     sys.exit(0)
 
 logfname = ofname + ".log"
@@ -26,11 +26,11 @@ d["WEIGHT_LIST"] = ofname + "-weightlist"
 
 trainnames, testnames = get_list(d)
 
-#flatten trainnames, testnames
+# flatten trainnames, testnames
 trainnamesf = [f for x in trainnames for f in x]
 testnamesf = [f for x in testnames for f in x]
 
-#write filelist for flearner
+# write filelist for flearner
 f = open(d["TRAIN_LIST"], "w")
 for name in trainnamesf:
     f.write(name + "\n")
@@ -44,8 +44,8 @@ for name in testnamesf:
     f.write(name + "\n")
 f.close()
 
-#write new options file used for flearner
-#we need to do this to write out the train/weight/test list
+# write new options file used for flearner
+# we need to do this to write out the train/weight/test list
 write_options(ofname + "flearner-options", d)
 
 if d["DO_NOT_EXTRACT"] == 0:

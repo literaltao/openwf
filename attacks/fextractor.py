@@ -4,9 +4,10 @@ import numpy
 import os
 from loaders import *
 
+
 def extract(times, sizes, features):
 
-    #Transmission size features
+    # Transmission size features
     features.append(len(sizes))
 
     count = 0
@@ -14,18 +15,18 @@ def extract(times, sizes, features):
         if x > 0:
             count += 1
     features.append(count)
-    features.append(len(times)-count)
+    features.append(len(times) - count)
 
     features.append(times[-1] - times[0])
 
-    #Unique packet lengths
-##    for i in range(-1500, 1501):
-##        if i in sizes:
-##            features.append(1)
-##        else:
-##            features.append(0)
+    # Unique packet lengths
+    ##    for i in range(-1500, 1501):
+    ##        if i in sizes:
+    ##            features.append(1)
+    ##        else:
+    ##            features.append(0)
 
-    #Transpositions (similar to good distance scheme)
+    # Transpositions (similar to good distance scheme)
     count = 0
     for i in range(0, len(sizes)):
         if sizes[i] > 0:
@@ -35,7 +36,7 @@ def extract(times, sizes, features):
             break
     for i in range(count, 500):
         features.append("X")
-        
+
     count = 0
     prevloc = 0
     for i in range(0, len(sizes)):
@@ -48,8 +49,7 @@ def extract(times, sizes, features):
     for i in range(count, 500):
         features.append("X")
 
-
-    #Packet distributions (where are the outgoing packets concentrated)
+    # Packet distributions (where are the outgoing packets concentrated)
     count = 0
     for i in range(0, min(len(sizes), 3000)):
         if i % 30 != 29:
@@ -58,10 +58,10 @@ def extract(times, sizes, features):
         else:
             features.append(count)
             count = 0
-    for i in range(len(sizes)/30, 100):
+    for i in range(len(sizes) / 30, 100):
         features.append(0)
 
-    #Bursts
+    # Bursts
     bursts = []
     curburst = 0
     consnegs = 0
@@ -69,7 +69,7 @@ def extract(times, sizes, features):
     for x in sizes:
         if x < 0:
             consnegs += 1
-            if (consnegs == 2):
+            if consnegs == 2:
                 bursts.append(curburst)
                 curburst = 0
                 consnegs = 0
@@ -78,7 +78,7 @@ def extract(times, sizes, features):
             curburst += x
     if curburst > 0:
         bursts.append(curburst)
-    if (len(bursts) > 0):
+    if len(bursts) > 0:
         features.append(max(bursts))
         features.append(numpy.mean(bursts))
         features.append(len(bursts))
@@ -86,7 +86,7 @@ def extract(times, sizes, features):
         features.append("X")
         features.append("X")
         features.append("X")
-##    print bursts
+    ##    print bursts
     counts = [0, 0, 0, 0, 0, 0]
     for x in bursts:
         if x > 2:
@@ -119,9 +119,9 @@ def extract(times, sizes, features):
         except:
             features.append("X")
 
-    itimes = [0]*(len(sizes)-1)
+    itimes = [0] * (len(sizes) - 1)
     for i in range(1, len(sizes)):
-        itimes[i-1] = times[i] - times[i-1]
+        itimes[i - 1] = times[i] - times[i - 1]
     if len(itimes) > 0:
         features.append(numpy.mean(itimes))
         features.append(numpy.std(itimes))
@@ -129,16 +129,18 @@ def extract(times, sizes, features):
         features.append("X")
         features.append("X")
 
+
 def flog(msg, fname):
     f = open(fname, "a+")
     f.write(repr(time.time()) + "\t" + str(msg) + "\n")
     f.close()
 
+
 try:
     optfname = sys.argv[1]
     d = load_options(optfname)
-except Exception,e:
-    print sys.argv[0], str(e)
+except Exception as e:
+    print(sys.argv[0], str(e))
     sys.exit(0)
 
 flist = []
@@ -149,13 +151,13 @@ for s in range(0, d["CLOSED_SITENUM"]):
 for i in range(0, d["OPEN_INSTNUM"]):
     flist.append("{}{}.cell".format(fold, i))
 
-print "fextractor.py: Extracting features"
+print("fextractor.py: Extracting features")
 for fname in flist:
     if "-0.cell" in fname:
-        print fname
+        print(fname)
     tname = fname + "kNN"
 
-    #load up times, sizes
+    # load up times, sizes
     times = []
     sizes = []
     f = open(fname, "r")
@@ -165,15 +167,15 @@ for fname in flist:
         sizes.append(int(x[1]))
     f.close()
 
-    #Extract features. All features are non-negative numbers or X. 
+    # Extract features. All features are non-negative numbers or X.
     features = []
-    try: 
+    try:
         extract(times, sizes, features)
         writestr = ""
         for x in features:
-            if x == 'X':
+            if x == "X":
                 x = -1
-            writestr += (repr(x) + "\n")
+            writestr += repr(x) + "\n"
         fout = open(tname, "w")
         fout.write(writestr[:-1])
         fout.close()
